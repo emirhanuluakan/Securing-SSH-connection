@@ -82,8 +82,68 @@ Listelenen dosyalarda `sshkey.pub` görüyorsanız doğru yoldasınız. SCP baş
 mkdir .ssh
 ```
 - Olduğunuz dizinin `~` olduğuna emin olun. Bunları ana dizinde gerçekleştiriyoruz. Bu komut, `~` dizininde `.ssh` dizinini (klasörünü) oluşturur.
+- `mkdir` komutu klasör oluşturmak için kullanılır.
 ```
 touch .ssh/authorized_keys
 ```
 - `touch` komutu dosya oluşturmak için kullanılır.
-- `mkdir` komutu klasör oluşturmak için kullanılır.
+```
+cat sshkey.pub >> .ssh/authorized_keys
+```
+- `cat` komutu belirli dosyaların içeriğini belirli dosyalara yazılmasını sağlar.
+- `>>` operatörü solundaki dosyanın içeriğini sağındaki dosyaya _ekler_. Eğer `>` kullansaydık mevcut içerik silinip yerine yazılırdı.
+```
+rm sshkey.pub
+```
+- `rm` komutu silme işlemini gerçekleştirir.
+```
+sudo nano /etc/ssh/sshd_config
+```
+- `nano` komutu metin düzenleme komutu. belirlenen dizindeki dosyayı düzenlemeye yarar. `sshd_config` dosyası, SSH ayarlarının yapıldığı dosyadır.
+
+Başında **#** yazan satırlar yorum satırlarıdır. Başındaki bu işareti kaldırarak yorum satırı olmamasını sağlayabilirsiniz. Yorum satırı olan her satır, varsayılan SSH yapılandırmasına aittir. Değiştirmek istediğiniz ayarların yorum işaretini değiştirerek düzenleyebilirsiniz. Aşağıda yazılanların yorum işaretlerini silip yanındaki değeriyle düzenleyin:
+```
+PermitRootLogin no 
+PubkeyAuthentication yes 
+Password Authentication no 
+AuthorizedKeysFile .ssh/authorized_keys .ssh/authorized_keys2
+```
+Satırlar sırasıyla şunları temsil eder:
+- SSH bağlantısını root olarak bağlanılmasını engeller.
+- Public key doğrulamasını aktif eder.
+- Kullanıcı şifresiyle doğrulamayı kapatır.
+- Public key'lerin hangi dizinde ve hangi dosyada olduğunu belirtir.
+
+Yukarıdaki dördü değişmesi/düzenlenmesi gereken en önemli olanlardı. **Alttakiler ise varsayılan olarak geliyor. Değiştirmenize gerek yok, referans olsun diye ekliyorum.** (Kullandığım dağıtım Ubuntu 24.04 LTS. Siz farklı bir dağıtım kullanıyorsanız alttaki seçenekler farklı olabilir.)
+
+```
+Include /etc/ssh/sshd_config.d/*.conf
+KbdInteractiveAuthentication no
+ChallengeResponseAuthentication no
+UsePam yes
+X11Forwarding yes
+PrintMotd no 
+AcceptEnv LANG LC_*
+Subsystem       sftp    /usr/lib/openssh/sftp-server
+```
+
+Yukarıdaki gibi düzenledikten sonra **CTRL+X** tuşlarına basarak çıkıyoruz. Çıkarken "kayıt edilsin mi" diye soracak, **Y** tuşuna basıyoruz ve sonrasında düzenlenen dosyanın adını ve dizinini düzenlemek için bir kısım açılıyor. Direkt **Enter** tuşuna tıklarsanız adını ve dizini değiştirmeden kaydedecektir.
+
+Dosya düzenlemesinden `nano` komutu haricinde `vim` de kullanılıyor. Kullandığınız komutun detayları için lütfen araştırın.
+```
+sudo systemctl restart sshd
+```
+- SSH hizmetini yeniden başlatır. buradaki `systemctl` ise servis ve sistem bileşenlerini yönetir.
+
+Şifre sorarsa kullanıcı adının şifresini girin.
+```
+exit
+```
+root'tan kullanıcı adına `su kullanici_adi` ile geçiş yaptığımız için `exit` dediğimizde root durumuna geri döndük.
+```
+exit
+```
+Tekrardan `exit` diyerek root durumundan çıkış yapıyoruz.
+
+## SSH Bağlantısı Kurma
+
