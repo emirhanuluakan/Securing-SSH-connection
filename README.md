@@ -173,4 +173,5 @@ ssh -i PRIVATE_KEY_DOSYA_YOLU kullanici_adi@SUNUCU_IP
 ```
 - **PRIVATE_KEY_DOSYA_YOLU** kısmına özel anahtarınızın dosya yolunu yazmanız lazım.
     - Windows'ta özel anahtara sağ tıklayın ve özellikler'e basın. Dosya yolunu kopyalayın. Örnek olarak: `C:\Users\kullanici_adi\.ssh`. Burada yazan dosya yoludur. Anahtarın kendsini de belirtmemiz gerekiyor. Bunun için `C:\Users\kullanici_adi\.ssh\sshkey` yazmamız gerekiyor.
+
 Passphrase eklediyseniz eğer size passphrase soracaktır. Yazdıktan sonra "Enter"a tıklayın ve başarıyla ssh bağlantınızı gerçekleştirin.
