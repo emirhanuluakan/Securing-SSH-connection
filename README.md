@@ -180,7 +180,7 @@ Passphrase eklediyseniz eğer size passphrase soracaktır. Yazdıktan sonra "Ent
 
 Aslında şu ana kadar sadece anahtar çifti oluşturup tanımladık. Bu, güvenlik için çok önemli bir adım olsa da yapabileceğimiz birkaç şey daha var. Bu kısmı yapmak zorunda değilsiniz fakat yukarıda belirttiğim gibi: **amacımız SSH bağlantısını daha güvenli hale getirmek**.
 
- ### Port Değiştirme (?)
+ ### Port Değiştirme (?) ve Güvenlik Duvarı
  Port değiştirmek, aslında yapabileceğiniz ciddi bir güvenlik atılımı değildir. Fakat tüm IP adreslerini SSH protokolünün varsayılan portuyla (22) tarayan botlar mevcut olduğundan görünürlülüğünüzü azalatacak bir adım olabilir. Öncelikle SSH yapılandırma dosyasına gidiyoruz.
 ```
 sudo nano /etc/ssh/sshd_config
@@ -190,10 +190,43 @@ Sonrasında buradan `#Port 22` olan satırın yorum işaretini (`#`) kaldırarak
 ```
 Port 49777
 ```
+Dosyayı kaydedip kapatıyoruz.
 
-Sonrasında dosyayı kaydedip SSH hizmetini yeniden başlatıyoruz:
+Şimdi sırada güvenlik duvarını ayarlamaya geldi. SSH'ın portunu **49777** ayarladığımız için güvenlik duvarına bu porta izin verilmesini yazmamız gerek. Bunun için kullandığınız Linux dağıtımının kullandığı güvenlik duvarı hizmetini kullanmanız gerekiyor. Ben Ubuntu 24.04 LTS kullanıyorum ve bendeki güvenlik duvarı hizmeti `ufw`.
+```
+sudo ufw status
+```
+- Bu komut ile izin verilen portları görebilirsiniz.
+
+**Port 22** varsayılan olarak açık gelecektir. Değiştirdiğimiz portu (49777) eklemek için de aşağıdaki komutu giriyoruz.
+```
+sudo ufw allow 49777/tcp
+```
+- `allow` komutu, sonrasında yazılacak olan port numarasına izin verir
+- Belirli bir protokole izin vermek için de `/` işaretini kullanabiliriz. Sonrasına yazılacak protokole izin verilecektir. Biz TCP protokolüne izin veriyoruz, çünkü SSH bağlantısı TCP protokolüyle çalışmaktadır.
+
+Sonrasında tekrardan `sudo ufw status` komutunu girerek, portumuzun başarıyla eklenilip eklenilmediğine bakabiliriz.
+
+Öncelikle SSH yapılandırmasını yeniden başatıyoruz
 ```
 sudo systemctl restart sshd
 ```
+
+Sonrasında ise Port 22'ye verilen izni kaldırıp, güvenlik duvarını yeniden başlatıyoruz
+```
+sudo ufw delete allow 22/tcp
+```
+- `delete allow` komutu, hali hazırda kural listesinde olan portu silmemize olanak sağlar.
+```
+sudo ufw reload
+```
+- `reload` komutu hizmeti yeniden başlatır.
+
+SSH bağlantımızı `exit` komutuyla sonlandırıp yeniden bağlantımızı gerçekleştiriyoruz. `ssh -i PRIVATE_KEY_DOSYA_YOLU kullanici_adi@SUNUCU_IP` yazmaya çalışırsanız, bağlantınız başarısız olacaktır, çünkü herhangi bir port belirtirilmediğinde varsayılan olan 22. porttan bağlantıyı gerçekleştirmeye çalışacaktır.
+
+```
+ssh -p PORT_NUMARASI -i PRIVATE_KEY_DOSYA_YOLU kullanici_adi@SUNUCU_IP
+```
+- `PORT_NUMARASI` kısmına belirlediğimiz port numarasını yazıyoruz (49777).
 
 İstediğiniz portu yazmakta özgürsünüz, fakat varsayılan portları yazmak çakışmalara ve gelen isteği dinleyememe gibi sorunlara yol açacağından dolayı **49152 – 65535** arasınıdaki portları kullanmanızı öneririm. Bu port aralığı **Dinamik ve Özel Portlar** olarak adlandırılır ve günlük hayatta kullandığınız hizmetlerin hiçbiri bu aralığı kullanmama ihitmalinden dolayı bu aralığı seçmeniz en iyi seçenektir. Portlarla ilgili daha fazla bilgi için lütfen araştırınız.
