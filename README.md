@@ -186,3 +186,14 @@ Aslında şu ana kadar sadece anahtar çifti oluşturup tanımladık. Bu, güven
 sudo nano /etc/ssh/sshd_config
 ```
 Sonrasında buradan `#Port 22` olan satırın yorum işaretini (`#`) kaldırarak istediğimiz port numarasını yazıyoruz
+
+```
+Port 49777
+```
+
+Sonrasında dosyayı kaydedip SSH hizmetini yeniden başlatıyoruz:
+```
+sudo systemctl restart sshd
+```
+
+İstediğiniz portu yazmakta özgürsünüz, fakat varsayılan portları yazmak çakışmalara ve gelen isteği dinleyememe gibi sorunlara yol açacağından dolayı **49152 – 65535** arasınıdaki portları kullanmanızı öneririm. Bu port aralığı **Dinamik ve Özel Portlar** olarak adlandırılır ve günlük hayatta kullandığınız hizmetlerin hiçbiri bu aralığı kullanmama ihitmalinden dolayı bu aralığı seçmeniz en iyi seçenektir. Portlarla ilgili daha fazla bilgi için lütfen araştırınız.
