@@ -51,6 +51,7 @@ Komutu girdikten sonra anahatarın adı sorulacaktır. Burada **sshkey** yazıyo
 Sonrasında passphrase soracak. Bu, anahtar çiftine ekelyeceğiniz ek bir şifre. Koymak zorunda değiliz fakat konumuz güvenlik olduğundan dolayı ekliyorum.
 
 Oluşup oluşmadığını kontrol etmek için .ssh dizinindeyken "ls -l" yazarsanız .ssh dizininde olan dosyaları görebilirsiniz. daha farklı listeleme için lütfen "ls" komutunu araştırın.
+- `.ssh` klasörü, Windows'ta C:\Users\kullanici_adi\ dizininde yer alır.
 
 İki tane dosya oluşacak: birisi **.pub uzantılı**, diğeri ise uzantısız sadece bir dosya. Burada **sshkey.pub** dosyası bir **Public Key** yani **Açık Anahtar**dır. Paylaşılmasında sakınca yoktur ve bağlanılacak sisteme (bizim durumumuzda sunucuya) aktarılır.
 
@@ -147,13 +148,13 @@ Subsystem       sftp    /usr/lib/openssh/sftp-server
 
 Yukarıdaki gibi düzenledikten sonra **CTRL+X** tuşlarına basarak çıkıyoruz. Çıkarken "Save modified buffer?" diye soracak, **Y** tuşuna basıyoruz ve sonrasında düzenlenen dosyanın adını ve dizinini düzenlemek için bir kısım açılıyor. Direkt **Enter** tuşuna tıklarsanız adını ve dizini değiştirmeden kaydedecektir.
 
-
+SSH hizmetini yeniden başlatmamız gerekiyor.
 ```
 sudo systemctl restart sshd
 ```
 - SSH hizmetini yeniden başlatır. buradaki `systemctl` ise servis ve sistem bileşenlerini yönetir.
 
-Şifre sorarsa kullanıcı adının şifresini girin.
+Şifre sorarsa kullanıcı adının şifresini giriniz.
 ```
 exit
 ```
@@ -164,4 +165,10 @@ exit
 Tekrardan `exit` diyerek root durumundan çıkış yapıyoruz.
 
 ## SSH Bağlantısı Kurma
-
+SSH bağlantısını `ssh kullanici_adi@SUNUCU_IP` yazarak bağlanıyorduk fakat şimdi alttaki komutu yazarak bağlanacağız.
+```
+ssh -i PRIVATE_KEY_DOSYA_YOLU kullanici_adi@SUNUCU_IP
+```
+- **PRIVATE_KEY_DOSYA_YOLU** kısmına özel anahtarınızın dosya yolunu yazmanız lazım.
+    - Windows'ta özel anahtara sağ tıklayın ve özellikler'e basın. Dosya yolunu kopyalayın. Örnek olarak: `C:\Users\kullanici_adi\.ssh`. Burada yazan dosya yoludur. Anahtarın kendsini de belirtmemiz gerekiyor. Bunun için `C:\Users\kullanici_adi\.ssh\sshkey` yazmamız gerekiyor.
+Passphrase eklediyseniz eğer size passphrase soracaktır. Yazdıktan sonra "Enter"a tıklayın ve başarıyla ssh bağlantınızı gerçekleştirin.
