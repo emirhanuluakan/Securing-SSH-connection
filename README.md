@@ -54,7 +54,7 @@ Oluşup oluşmadığını kontrol etmek için .ssh dizinindeyken "ls -l" yazarsa
 
 İki tane dosya oluşacak: birisi **.pub uzantılı**, diğeri ise uzantısız sadece bir dosya. Burada **sshkey.pub** dosyası bir **Public Key** yani **Açık Anahtar**dır. Paylaşılmasında sakınca yoktur ve bağlanılacak sisteme (bizim durumumuzda sunucuya) aktarılır.
 
-Diğeri ise **sshkey** dosyası ile **Private Key** yani **Özel Anahtar**dır ve paylaşılmaması gerekir. Kimlik doğrulama yapılırken açık anahtar, bağlanan cihaza bir _soru_ gönderir ve bu sorunun cevabı sadece ama sadece özel anahtarda mevcuttur. Böylelikle kimlik doğrulanır.
+Diğeri ise **sshkey** dosyası, **Private Key** yani **Özel Anahtar**dır ve paylaşılmaması gerekir. Kimlik doğrulama yapılırken açık anahtar, bağlanan cihaza bir _soru_ gönderir ve bu sorunun cevabı sadece ama sadece özel anahtarda mevcuttur. Böylelikle kimlik doğrulanır.
 
 Oluşan anahtarı sunucumuza kopyalamak için `scp` komutunu kullanacağız (Unutmayın, hala local cihazdayız).
 ```
@@ -68,38 +68,56 @@ scp sshkey.pub kullanici_adi@SUNUCU_IP:
 Şifre sorduğu zaman sunucunun şifresini girin ve kopyalama gerçekleşecek.
 
 ## Anahtar çiftini tanımlama ve SSH yapılandırması
+
+### Anahtar çiftini tanımlama
+Ana dizine gitmemiz gerekiyor
 ```
 cd ~
 ```
-- Ana dizine gidersiniz
+- `cd` ana dizine gidersiniz
+
+Ana dizindeki dosyaları listeler
 ```
 ls
 ```
-- Olduğunuz dizindeki dosyaları listeler
+- `ls` olduğunuz dizindeki dosyaları listeler
 
-Listelenen dosyalarda `sshkey.pub` görüyorsanız doğru yoldasınız. SCP başarıyla gerçekleşmiş. Şimdi bu **Public Key**'i işletim sisteminin SSH ayarlarının yapıldığı dosyada yazan dizine aktarmamız gerek. Bu dizin çoğu Linux işletim sisteminde aynıdır (`.ssh/authorized_keys`).
+Listelenen dosyalarda `sshkey.pub` görüyorsanız doğru yoldasınız. SCP başarıyla gerçekleşmiş. Şimdi bu **Public Key**'i işletim sisteminin SSH ayarlarının yapıldığı dosyada yazan dizine aktarmamız gerek. Bu dizin çoğu Linux dağıtımalarında aynıdır (`.ssh/authorized_keys`).
+Olduğunuz dizinin `~` olduğuna emin olun. Bunları ana dizinde gerçekleştiriyoruz. Aşağıdaki komut, `~` dizininde `.ssh` dizinini (klasörünü) oluşturur.
 ```
 mkdir .ssh
 ```
-- Olduğunuz dizinin `~` olduğuna emin olun. Bunları ana dizinde gerçekleştiriyoruz. Bu komut, `~` dizininde `.ssh` dizinini (klasörünü) oluşturur.
 - `mkdir` komutu klasör oluşturmak için kullanılır.
+Şimdi ise .ssh klasörüne authorized_keys dosyasını oluşturalım. Bu dosya, **Public Key**'lerin içeriğine sahip olan dosyadır.
 ```
 touch .ssh/authorized_keys
 ```
 - `touch` komutu dosya oluşturmak için kullanılır.
+Şimdi ise `sshkey.pub` içeriğini `authorized_keys` dosyasına aktarmamız gerek.
 ```
 cat sshkey.pub >> .ssh/authorized_keys
 ```
 - `cat` komutu belirli dosyaların içeriğini belirli dosyalara yazılmasını sağlar.
 - `>>` operatörü solundaki dosyanın içeriğini sağındaki dosyaya _ekler_. Eğer `>` kullansaydık mevcut içerik silinip yerine yazılırdı.
+Eğer burada iki tane **Public Key** tanımlamak isteseydik, **Public Key**'leri konumlarıyla birlikte sırasıyla yazmamız gerekirdi. Aşağıya örneğini ekliyorum. Bu örnek, `>>` kullanıldığından bir içeriği başka bir içeriğin yerine yazmaz, ekleme yapar.
+```
+cat ~/sshkey1.pub ~/sshkey2.pub >> .ssh/authorized_keys
+```
+- Ana dizinde olduğumuz için `~/` eklememiz gerekmiyor, örnek olduğundan dolayı değinmek istedim.
+
+Artık `sshkey.pub` dosyasına gerek kalmadı çünkü içeriğini `authorized_keys` dosyasına _aktardık_. Silmek için: 
 ```
 rm sshkey.pub
 ```
 - `rm` komutu silme işlemini gerçekleştirir.
+
+### SSH Yapılandırması
+Şimdi ise SSH yapılandırmasını ayarlamamız gerek.
 ```
 sudo nano /etc/ssh/sshd_config
 ```
 - `nano` komutu metin düzenleme komutu. belirlenen dizindeki dosyayı düzenlemeye yarar. `sshd_config` dosyası, SSH ayarlarının yapıldığı dosyadır.
+- Dosya düzenlemesinden `nano` komutu haricinde `vim` de kullanılıyor. Kullandığınız komutun detayları için lütfen araştırın.
 
 Başında **#** yazan satırlar yorum satırlarıdır. Başındaki bu işareti kaldırarak yorum satırı olmamasını sağlayabilirsiniz. Yorum satırı olan her satır, varsayılan SSH yapılandırmasına aittir. Değiştirmek istediğiniz ayarların yorum işaretini değiştirerek düzenleyebilirsiniz. Aşağıda yazılanların yorum işaretlerini silip yanındaki değeriyle düzenleyin:
 ```
@@ -114,7 +132,7 @@ Satırlar sırasıyla şunları temsil eder:
 - Kullanıcı şifresiyle doğrulamayı kapatır.
 - Public key'lerin hangi dizinde ve hangi dosyada olduğunu belirtir.
 
-Yukarıdaki dördü değişmesi/düzenlenmesi gereken en önemli olanlardı. **Alttakiler ise varsayılan olarak geliyor. Değiştirmenize gerek yok, referans olsun diye ekliyorum.** (Kullandığım dağıtım Ubuntu 24.04 LTS. Siz farklı bir dağıtım kullanıyorsanız alttaki seçenekler farklı olabilir.)
+Yukarıdaki dördü değişmesi/düzenlenmesi gereken en önemli olanlardı. **Alttakiler ise varsayılan olarak geliyor. Değiştirmenize gerek yok, referans olsun diye ekliyorum.** (Kullandığım dağıtım Ubuntu 24.04 LTS. Siz farklı bir dağıtım kullanıyorsanız alttaki seçenekler farklı olabilir)
 
 ```
 Include /etc/ssh/sshd_config.d/*.conf
@@ -129,7 +147,7 @@ Subsystem       sftp    /usr/lib/openssh/sftp-server
 
 Yukarıdaki gibi düzenledikten sonra **CTRL+X** tuşlarına basarak çıkıyoruz. Çıkarken "kayıt edilsin mi" diye soracak, **Y** tuşuna basıyoruz ve sonrasında düzenlenen dosyanın adını ve dizinini düzenlemek için bir kısım açılıyor. Direkt **Enter** tuşuna tıklarsanız adını ve dizini değiştirmeden kaydedecektir.
 
-Dosya düzenlemesinden `nano` komutu haricinde `vim` de kullanılıyor. Kullandığınız komutun detayları için lütfen araştırın.
+
 ```
 sudo systemctl restart sshd
 ```
