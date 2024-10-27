@@ -130,7 +130,7 @@ Satırlar sırasıyla şunları temsil eder:
 - SSH bağlantısını root olarak bağlanılmasını engeller.
 - Public key doğrulamasını aktif eder.
 - Kullanıcı şifresiyle doğrulamayı kapatır.
-- Public key'lerin hangi dizinde ve hangi dosyada olduğunu belirtir.
+- Public key'lerin hangi dizinde ve hangi dosyada olduğunu belirtir. Bu dizini ve dosyayı biz yukarıda oluşturmuştuk. Varsayılan olarak (Başında # işareti varsa) bizim oluşturduğumuz dizin ve dosyaya sahipse değiştirmenize gerek yok.
 
 Yukarıdaki dördü değişmesi/düzenlenmesi gereken en önemli olanlardı. **Alttakiler ise varsayılan olarak geliyor. Değiştirmenize gerek yok, referans olsun diye ekliyorum.** (Kullandığım dağıtım Ubuntu 24.04 LTS. Siz farklı bir dağıtım kullanıyorsanız alttaki seçenekler farklı olabilir)
 
@@ -145,7 +145,7 @@ AcceptEnv LANG LC_*
 Subsystem       sftp    /usr/lib/openssh/sftp-server
 ```
 
-Yukarıdaki gibi düzenledikten sonra **CTRL+X** tuşlarına basarak çıkıyoruz. Çıkarken "kayıt edilsin mi" diye soracak, **Y** tuşuna basıyoruz ve sonrasında düzenlenen dosyanın adını ve dizinini düzenlemek için bir kısım açılıyor. Direkt **Enter** tuşuna tıklarsanız adını ve dizini değiştirmeden kaydedecektir.
+Yukarıdaki gibi düzenledikten sonra **CTRL+X** tuşlarına basarak çıkıyoruz. Çıkarken "Save modified buffer?" diye soracak, **Y** tuşuna basıyoruz ve sonrasında düzenlenen dosyanın adını ve dizinini düzenlemek için bir kısım açılıyor. Direkt **Enter** tuşuna tıklarsanız adını ve dizini değiştirmeden kaydedecektir.
 
 
 ```
