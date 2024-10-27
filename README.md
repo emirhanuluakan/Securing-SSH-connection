@@ -177,3 +177,12 @@ ssh -i PRIVATE_KEY_DOSYA_YOLU kullanici_adi@SUNUCU_IP
 Passphrase eklediyseniz eğer size passphrase soracaktır. Yazdıktan sonra "Enter"a tıklayın ve başarıyla ssh bağlantınızı gerçekleştirin.
 
 ## Gelişmiş Ayarlar
+
+Aslında şu ana kadar sadece anahtar çifti oluşturup tanımladık. Bu, güvenlik için çok önemli bir adım olsa da yapabileceğimiz birkaç şey daha var. Bu kısmı yapmak zorunda değilsiniz fakat yukarıda belirttiğim gibi: **amacımız SSH bağlantısını daha güvenli hale getirmek**.
+
+ ### Port Değiştirme (?)
+ Port değiştirmek, aslında yapabileceğiniz ciddi bir güvenlik atılımı değildir. Fakat tüm IP adreslerini SSH protokolünün varsayılan portuyla (22) tarayan botlar mevcut olduğundan görünürlülüğünüzü azalatacak bir adım olabilir. Öncelikle SSH yapılandırma dosyasına gidiyoruz.
+```
+sudo nano /etc/ssh/sshd_config
+```
+Sonrasında buradan `#Port 22` olan satırın yorum işaretini (`#`) kaldırarak istediğimiz port numarasını yazıyoruz
