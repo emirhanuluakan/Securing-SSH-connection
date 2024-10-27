@@ -70,6 +70,8 @@ scp sshkey.pub kullanici_adi@SUNUCU_IP:
 
 ## Anahtar çiftini tanımlama ve SSH yapılandırması
 
+Bu aşamaları sunucumuzda gerçekleştireceğiz.
+
 ### Anahtar çiftini tanımlama
 Ana dizine gitmemiz gerekiyor
 ```
