@@ -1,3 +1,5 @@
+for Turkish version, please visit `main.tr` branch.
+
 # Securing the SSH Connection
 
 After setting up your server and obtaining its IP address, username (most likely **root**), and password, you can establish an SSH connection by typing:
