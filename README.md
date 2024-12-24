@@ -1,141 +1,142 @@
-# SSH Bağlantısını Güvenli Hale Getirme
+# Securing the SSH Connection
 
-  Sunucu kurduktan sonra kurduğunuz sunucunun IP'si, kullanıcı adı(yüksek ihtimal root) ve şifresini öğrendikten sonra, SSH ile bağlantıyı:
+After setting up your server and obtaining its IP address, username (most likely **root**), and password, you can establish an SSH connection by typing:
 ```
 ssh root@SUNUCU_IP
 ```
-  yazarak sağlayabilirsiniz. Eğer **root** yetkisiyle giriş yapamıyorsanız, bu kurduğunuz sunucu servisinin **root** yetkisi ile SSH yapılmasını engellediğinden kaynaklanıyor olabilir _-ki bu da istediğimiz bir şey-_.
+If you are unable to log in with **root** privileges, it might be because the server service you installed disables SSH access with **root** privileges (which is actually something we want).
 
-  Komutu "root" veya sunucu servisinin size belirttiği kullanıcı adıyla girdikten sonra sunucu servisinin belirttiği şifreyi girerek SSH ile bağlantıyı gerçekleştiriyoruz.
+After entering the command with "root" or the username provided by your server service, enter the password specified by the service to complete the SSH connection.
 
-## Kullanıcı Oluşturmak
 
-__EĞER _root_ YETKİSİYLE GİREBİLİYORSANIZ BU KISMI YAPMANIZ GEREKİR!__
+## Creating a User
 
-Root ile giriş yaptığımız sunucumuza şu komutları girerek yeni kullanıcı oluşturuyoruz. Bu kullanıcı yönetici yetkisine **sudo** komutunu kullanarak sahip olur.
+__IF YOU CAN LOG IN WITH _root_ PRIVILEGES, YOU NEED TO COMPLETE THIS SECTION!__
+
+After logging in to the server with root, we create a new user by entering the following commands. This user gains administrator privileges by using the **sudo** command.
 
 ```
 adduser kullanici_adi
 ```
-- `adduser` komutu kullanıcı oluşturmayı sağlar
+- The `adduser` command creates a user.
 ```
 usermod -aG sudo kullanici_adi
 ```
-- **kullanici_adi** adlı kullanıcıyı **sudo** grubuna eklemeye yarar. **sudo** grubunda olan kullanıcılar yönetici yetkilerine sahip olur.
+- Adds the user named **kullanici_adi** to the **sudo** group. Users in the **sudo** group have administrator privileges.
 
-Komutu girdikten sonra kullanıcıya ait şifre oluşturmak istenecek. İstediğiniz şifreyi yazın.
+After entering these commands, you will be prompted to create a password for the user. Enter your desired password.
 
-- `cd nano /etc/sudoers` komutunu girerek kullanıcı izinlerini görebilirsiniz. (Opsiyonel)
+- You can view user permissions by typing `cd nano /etc/sudoers` (optional).
 
-Kullanıcıya geçiş yapmak için şu komutu giriyoruz:
+To switch to the newly created user, type:
 ```
 su kullanici_adi
 ```
 
-## SSH anahtar çifti oluşturmak
+## Generating an SSH Key Pair
 
-Kendi local cihazınızın terminaline (Windowsta Powershell) şu komutları girmelisiniz:
+Open the terminal on your local machine (PowerShell on Windows) and enter the following commands:
 ```
 cd .ssh
 ```
-- .ssh dizinine gidersiniz.
+- This command will take you to the `.ssh` directory.
 ```
 ssh-keygen -t rsa -b 4096
 ```
-- `ssh-keygen` ssh anahtar çifti oluşturmak için kullanılan komuttur.
-- `-t rsa` anahtarın türü.
-- `-b 4096` anahtarın bit cinsinden uzunluğu. SSH anahtar çifti oluştururken genelde 2048 ve 4096 bit kullanılır. bazı anahtar türlerinde bit değeri sabit olduğundan `-b` girilmez.
+- `ssh-keygen` is a command used to generate an SSH key pair.
+- `-t rsa` specifies the key type.
+- `-b 4096` indicates the length of the key in bits. Common bit lengths are 2048 and 4096. In some key types, the bit value is fixed, so `-b` may not be used.
 
-Komutu girdikten sonra anahatarın adı sorulacaktır. Burada **sshkey** yazıyorum. Siz ne yazmak isterseniz onu yazın. Türkçe karakterlerden kaçının.
+After entering the command, it will ask for a name for the key. Here, we use **sshkey** as an example. You can use any name you like, but avoid using non-English characters.
 
-Sonrasında passphrase soracak. Bu, anahtar çiftine ekelyeceğiniz ek bir şifre. Koymak zorunda değiliz fakat konumuz güvenlik olduğundan dolayı ekliyorum.
+Next, it will ask for a passphrase, which is an additional password for the key pair. You don’t have to set one, but since our goal is security, we will add one here.
 
-Oluşup oluşmadığını kontrol etmek için .ssh dizinindeyken "ls -l" yazarsanız .ssh dizininde olan dosyaları görebilirsiniz. daha farklı listeleme için lütfen "ls" komutunu araştırın.
-- `.ssh` klasörü, Windows'ta C:\Users\kullanici_adi\ dizininde yer alır.
+To verify whether the key pair was generated, you can type `ls -l` while in the `.ssh` directory to list the files in detail. For more options on listing files, please research the `ls` command.
+- The `.ssh` folder can be found in `C:\Users\kullanici_adi\` on Windows.
 
-İki tane dosya oluşacak: birisi **.pub uzantılı**, diğeri ise uzantısız sadece bir dosya. Burada **sshkey.pub** dosyası bir **Public Key** yani **Açık Anahtar**dır. Paylaşılmasında sakınca yoktur ve bağlanılacak sisteme (bizim durumumuzda sunucuya) aktarılır.
+Two files will be created: one with a **.pub** extension and another without an extension. The file named **sshkey.pub** is your **Public Key** and can be shared with no issues. It is the one you upload to the remote system (in our case, the server).
 
-Diğeri ise **sshkey** dosyası, **Private Key** yani **Özel Anahtar**dır ve paylaşılmaması gerekir. Kimlik doğrulama yapılırken açık anahtar, bağlanan cihaza bir _soru_ gönderir ve bu sorunun cevabı sadece ama sadece özel anahtarda mevcuttur. Böylelikle kimlik doğrulanır.
+The other file named **sshkey** is your **Private Key** and must never be shared. During authentication, the public key sends a _challenge_ to the remote device, and only the private key can provide the correct answer to that challenge, thus authenticating the connection.
 
-Oluşan anahtarı sunucumuza kopyalamak için `scp` komutunu kullanacağız (Unutmayın, hala local cihazdayız).
+To copy the newly created key to the server, we will use the `scp` command (remember, we’re still on our local machine):
 ```
 scp sshkey.pub kullanici_adi@SUNUCU_IP:
 ```
-- `scp` **Secure Copy Protocol** anlamına gelir. Bu komutla dosyaları kopyalayabilriz.
-- `sshkey.pub` kısmına oluşturduğunuz SSH anahtar çiftinin açık anahtarını (.pub) giriyoruz.
-- `kullanici_adi@SUNUCU_IP` kısmında ise oluşturduğumuz kullanıcı adı ve bağlanacağımız sunucunun IPv4'ünü yazıyorsunuz.
-- sondaki `:` karakteri ise kopyalanılacak dosyanın, sunucuda hangi dizine kopyalanacağını belirtir. Eğer bir şey yazmasaydık `/home/kullanici_adi` dizininde aktaracaktı. Fakat `:` karakteri ise kullanıcının ana dizinine kopyalamasını sağayacak (`~`).
+- `scp` stands for **Secure Copy Protocol**, used for securely copying files.
+- `sshkey.pub` is the public key from the SSH key pair you generated.
+- In `kullanici_adi@SUNUCU_IP`, specify the username you created and the server’s IPv4 address.
+- The trailing `:` indicates the directory on the server where the file will be copied. If nothing else is specified, the file will go to `/home/kullanici_adi`. By adding `:`, it places it in the user’s home directory (`~`).
 
-Şifre sorduğu zaman sunucunun şifresini girin ve kopyalama gerçekleşecek.
+When it asks for a password, enter your server’s password, and the file will be copied over.
 
-## Anahtar çiftini tanımlama ve SSH yapılandırması
+## Defining the Key Pair and Configuring SSH
 
-Bu aşamaları sunucumuzda gerçekleştireceğiz.
+We will perform these steps on our server.
 
-### Anahtar çiftini tanımlama
-Ana dizine gitmemiz gerekiyor
+### Defining the Key Pair
+First, navigate to your home directory:
 ```
 cd ~
 ```
-- `cd` ana dizine gidersiniz
+- `cd` moves you to the home directory.
 
-Ana dizindeki dosyaları listeler
+List the files in your home directory:
 ```
 ls
 ```
 - `ls` olduğunuz dizindeki dosyaları listeler
 
-Listelenen dosyalarda `sshkey.pub` görüyorsanız doğru yoldasınız. SCP başarıyla gerçekleşmiş. Şimdi bu **Public Key**'i işletim sisteminin SSH ayarlarının yapıldığı dosyada yazan dizine aktarmamız gerek. Bu dizin çoğu Linux dağıtımalarında aynıdır (`.ssh/authorized_keys`).
-Olduğunuz dizinin `~` olduğuna emin olun. Bunları ana dizinde gerçekleştiriyoruz. Aşağıdaki komut, `~` dizininde `.ssh` dizinini (klasörünü) oluşturur.
+If you see `sshkey.pub` listed, you’re on the right track, and SCP worked successfully. We now need to move this **Public Key** to the directory specified in the OS’s SSH configuration file. For most Linux distributions, that directory is `~/.ssh/authorized_keys`.
+Make sure you’re still in the `~` directory. The command below creates a `.ssh` folder in `~`.
 ```
 mkdir .ssh
 ```
-- `mkdir` komutu klasör oluşturmak için kullanılır.
-Şimdi ise .ssh klasörüne authorized_keys dosyasını oluşturalım. Bu dosya, **Public Key**'lerin içeriğine sahip olan dosyadır.
+- `mkdir` is used to create a new folder.
+Now, let’s create the `authorized_keys` file inside the `.ssh` folder. This file contains the contents of your **Public Key**.
 ```
 touch .ssh/authorized_keys
 ```
-- `touch` komutu dosya oluşturmak için kullanılır.
-Şimdi ise `sshkey.pub` içeriğini `authorized_keys` dosyasına aktarmamız gerek.
+- `touch` is used to create files.
+Next, we need to add the contents of `sshkey.pub` into the `authorized_keys` file:
 ```
 cat sshkey.pub >> .ssh/authorized_keys
 ```
-- `cat` komutu belirli dosyaların içeriğini belirli dosyalara yazılmasını sağlar.
-- `>>` operatörü solundaki dosyanın içeriğini sağındaki dosyaya _ekler_. Eğer `>` kullansaydık mevcut içerik silinip yerine yazılırdı.
-Eğer burada iki tane **Public Key** tanımlamak isteseydik, **Public Key**'leri konumlarıyla birlikte sırasıyla yazmamız gerekirdi. Aşağıya örneğini ekliyorum. Bu örnek, `>>` kullanıldığından bir içeriği başka bir içeriğin yerine yazmaz, ekleme yapar.
+- `cat` displays or concatenates the contents of a file.
+- `>>` appends the output from the file on the left into the file on the right. If you had used `>`, it would replace any existing contents with the new data.
+If you wanted to define two **Public Keys**, you would simply list both file locations and use the `>>` operator, as shown below. This example won’t overwrite any existing content; it appends it.
 ```
 cat ~/sshkey1.pub ~/sshkey2.pub >> .ssh/authorized_keys
 ```
-- Ana dizinde olduğumuz için `~/` eklememiz gerekmiyor, örnek olduğundan dolayı değinmek istedim.
+- Since we’re in the home directory, we don’t actually need `~/` here. It’s just for illustration.
 
-Artık `sshkey.pub` dosyasına gerek kalmadı çünkü içeriğini `authorized_keys` dosyasına _aktardık_. Silmek için: 
+We no longer need the `sshkey.pub` file because its contents have been added to `authorized_keys`. To remove it:
 ```
 rm sshkey.pub
 ```
-- `rm` komutu silme işlemini gerçekleştirir.
+- `rm` is used to remove a file.
 
-### SSH Yapılandırması
-Şimdi ise SSH yapılandırmasını ayarlamamız gerek.
+### SSH Configuration
+Now let’s configure SSH:
 ```
 sudo nano /etc/ssh/sshd_config
 ```
-- `nano` komutu metin düzenleme komutu. belirlenen dizindeki dosyayı düzenlemeye yarar. `sshd_config` dosyası, SSH ayarlarının yapıldığı dosyadır.
-- Dosya düzenlemesinden `nano` komutu haricinde `vim` de kullanılıyor. Kullandığınız komutun detayları için lütfen araştırın.
+- `nano` is a text editor that allows you to edit the file specified. `sshd_config` is the file that controls SSH settings.
+- You could also use `vim`. For specifics on commands, please do your own research.
 
-Başında **#** yazan satırlar yorum satırlarıdır. Başındaki bu işareti kaldırarak yorum satırı olmamasını sağlayabilirsiniz. Yorum satırı olan her satır, varsayılan SSH yapılandırmasına aittir. Değiştirmek istediğiniz ayarların yorum işaretini değiştirerek düzenleyebilirsiniz. Aşağıda yazılanların yorum işaretlerini silip yanındaki değeriyle düzenleyin:
+Lines with **#** at the start are comment lines. Removing the **#** changes them from commented to uncommented. Any default SSH settings are included as commented lines. You can modify them by removing the comment symbol and adjusting the corresponding values. Below are the lines we need to focus on (remove the **#** and set the values as shown):
 ```
 PermitRootLogin no 
 PubkeyAuthentication yes 
 Password Authentication no 
 AuthorizedKeysFile .ssh/authorized_keys .ssh/authorized_keys2
 ```
-Satırlar sırasıyla şunları temsil eder:
-- SSH bağlantısını root olarak bağlanılmasını engeller.
-- Public key doğrulamasını aktif eder.
-- Kullanıcı şifresiyle doğrulamayı kapatır.
-- Public key'lerin hangi dizinde ve hangi dosyada olduğunu belirtir. Bu dizini ve dosyayı biz yukarıda oluşturmuştuk. Varsayılan olarak (Başında # işareti varsa) bizim oluşturduğumuz dizin ve dosyaya sahipse değiştirmenize gerek yok.
+These lines indicate the following:
+- Denies SSH connections for the root user.
+- Enables public key authentication.
+- Disables password-based authentication.
+- Specifies the location and file(s) for public keys. These match what we set up above. If your distribution’s default settings already point here (and the lines are uncommented), there’s no need to change anything.
 
-Yukarıdaki dördü değişmesi/düzenlenmesi gereken en önemli olanlardı. **Alttakiler ise varsayılan olarak geliyor. Değiştirmenize gerek yok, referans olsun diye ekliyorum.** (Kullandığım dağıtım Ubuntu 24.04 LTS. Siz farklı bir dağıtım kullanıyorsanız alttaki seçenekler farklı olabilir)
+The four settings above are the most important. **The lines below usually come by default and don’t need changing.** (These examples come from Ubuntu 24.04 LTS; other distributions may vary.)
 
 ```
 Include /etc/ssh/sshd_config.d/*.conf
@@ -148,85 +149,85 @@ AcceptEnv LANG LC_*
 Subsystem       sftp    /usr/lib/openssh/sftp-server
 ```
 
-Yukarıdaki gibi düzenledikten sonra **CTRL+X** tuşlarına basarak çıkıyoruz. Çıkarken "Save modified buffer?" diye soracak, **Y** tuşuna basıyoruz ve sonrasında düzenlenen dosyanın adını ve dizinini düzenlemek için bir kısım açılıyor. Direkt **Enter** tuşuna tıklarsanız adını ve dizini değiştirmeden kaydedecektir.
+After making these changes, press **CTRL+X** to exit. When prompted “Save modified buffer?”, press **Y**. You’ll then be asked whether you want to rename the file or change its directory. Just press **Enter** to save the file under its current name and location.
 
-SSH hizmetini yeniden başlatmamız gerekiyor.
+We need to restart the SSH service:
 ```
 sudo systemctl restart sshd
 ```
-- SSH hizmetini yeniden başlatır. buradaki `systemctl` ise servis ve sistem bileşenlerini yönetir.
+- This restarts the SSH service. `systemctl` manages services and system components.
 
-Şifre sorarsa kullanıcı adının şifresini giriniz.
+When asked for a password, enter the password for your user.
 ```
 exit
 ```
-root'tan kullanıcı adına `su kullanici_adi` ile geçiş yaptığımız için `exit` dediğimizde root durumuna geri döndük.
+Because we switched from root to **kullanici_adi** via `su kullanici_adi`, entering `exit` here returns us to root.
 ```
 exit
 ```
-Tekrardan `exit` diyerek root durumundan çıkış yapıyoruz.
+Entering `exit` once more logs us out from the root session.
 
-## SSH Bağlantısı Kurma
-SSH bağlantısını `ssh kullanici_adi@SUNUCU_IP` yazarak bağlanıyorduk fakat şimdi alttaki komutu yazarak bağlanacağız.
+## Establishing the SSH Connection
+We used to connect by typing `ssh kullanici_adi@SUNUCU_IP`, but now we need to use the command below:
 ```
 ssh -i PRIVATE_KEY_DOSYA_YOLU kullanici_adi@SUNUCU_IP
 ```
-- **PRIVATE_KEY_DOSYA_YOLU** kısmına özel anahtarınızın dosya yolunu yazmanız lazım.
-    - Windows'ta özel anahtara sağ tıklayın ve özellikler'e basın. Dosya yolunu kopyalayın. Örnek olarak: `C:\Users\kullanici_adi\.ssh`. Burada yazan dosya yoludur. Anahtarın kendsini de belirtmemiz gerekiyor. Bunun için `C:\Users\kullanici_adi\.ssh\sshkey` yazmamız gerekiyor.
+- In **PRIVATE_KEY_DOSYA_YOLU**, enter the path to your private key.
+    - On Windows, right-click on the private key file and select “Properties” to copy the file path, such as `C:\Users\kullanici_adi\.ssh`. Then add `\sshkey` to specify the actual key file. For example: `C:\Users\kullanici_adi\.ssh\sshkey`.
 
-Passphrase eklediyseniz eğer size passphrase soracaktır. Yazdıktan sonra "Enter"a tıklayın ve başarıyla ssh bağlantınızı gerçekleştirin.
+If you set a passphrase, you’ll be prompted for it. Type it in and press **Enter** to complete the SSH connection successfully.
 
-## Gelişmiş Ayarlar
+## Advanced Settings
 
-Aslında şu ana kadar sadece anahtar çifti oluşturup tanımladık. Bu, güvenlik için çok önemli bir adım olsa da yapabileceğimiz birkaç şey daha var. Bu kısmı yapmak zorunda değilsiniz fakat yukarıda belirttiğim gibi: **amacımız SSH bağlantısını daha güvenli hale getirmek**.
+So far, we’ve only generated and assigned a key pair. While this is a major step for security, there are still a few more things you could do. You are not obliged to perform these additional steps, but our main objective is **to make SSH more secure**.
 
- ### Port Değiştirme (?) ve Güvenlik Duvarı
- Port değiştirmek, aslında yapabileceğiniz ciddi bir güvenlik atılımı değildir. Fakat tüm IP adreslerini SSH protokolünün varsayılan portuyla (22) tarayan botlar mevcut olduğundan görünürlülüğünüzü azalatacak bir adım olabilir. Öncelikle SSH yapılandırma dosyasına gidiyoruz.
+ ### Changing the Port (?) and Firewall Configuration
+ Changing the port is not a major security enhancement. However, because bots often scan for open ports on 22 by default, using a different port might reduce visibility. First, open your SSH configuration file:
 ```
 sudo nano /etc/ssh/sshd_config
 ```
-Sonrasında buradan `#Port 22` olan satırın yorum işaretini (`#`) kaldırarak istediğimiz port numarasını yazıyoruz
+Find the line `#Port 22`, remove the comment symbol **#**, and set a new port number:
 
 ```
 Port 49777
 ```
-Dosyayı kaydedip kapatıyoruz.
+Save and close the file.
 
-Şimdi sırada güvenlik duvarını ayarlamaya geldi. SSH'ın portunu **49777** ayarladığımız için güvenlik duvarına bu porta izin verilmesini yazmamız gerek. Bunun için kullandığınız Linux dağıtımının kullandığı güvenlik duvarı hizmetini kullanmanız gerekiyor. Ben Ubuntu 24.04 LTS kullanıyorum ve bendeki güvenlik duvarı hizmeti `ufw`.
+Next, we need to configure the firewall. Since we set SSH to use **49777**, we must allow incoming connections on that port. The commands will vary based on your Linux distribution. For Ubuntu 24.04 LTS, we use `ufw`:
 ```
 sudo ufw status
 ```
-- Bu komut ile izin verilen portları görebilirsiniz.
+- This shows the ports currently allowed.
 
-**Port 22** varsayılan olarak açık gelecektir. Değiştirdiğimiz portu (49777) eklemek için de aşağıdaki komutu giriyoruz.
+You’ll see **Port 22** allowed by default. We now allow the new port (49777):
 ```
 sudo ufw allow 49777/tcp
 ```
-- `allow` komutu, sonrasında yazılacak olan port numarasına izin verir
-- Belirli bir protokole izin vermek için de `/` işaretini kullanabiliriz. Sonrasına yazılacak protokole izin verilecektir. Biz TCP protokolüne izin veriyoruz, çünkü SSH bağlantısı TCP protokolüyle çalışmaktadır.
+- `allow` permits the specified port.
+- We can use the `/` symbol to allow a specific protocol. The protocol specified after the `/` will be granted permission. We are allowing the TCP protocol because SSH connections work over TCP.
 
-Sonrasında tekrardan `sudo ufw status` komutunu girerek, portumuzun başarıyla eklenilip eklenilmediğine bakabiliriz.
+Next, run `sudo ufw status` again to confirm the port has been added.
 
-Öncelikle SSH yapılandırmasını yeniden başatıyoruz
+Restart the SSH configuration:
 ```
 sudo systemctl restart sshd
 ```
 
-Sonrasında ise Port 22'ye verilen izni kaldırıp, güvenlik duvarını yeniden başlatıyoruz
+Now, remove the rule allowing **Port 22** and then reload the firewall:
 ```
 sudo ufw delete allow 22/tcp
 ```
-- `delete allow` komutu, hali hazırda kural listesinde olan portu silmemize olanak sağlar.
+- `delete allow` removes a rule from the firewall’s list.
 ```
 sudo ufw reload
 ```
-- `reload` komutu hizmeti yeniden başlatır.
+- `reload` restarts the firewall.
 
-SSH bağlantımızı `exit` komutuyla sonlandırıp yeniden bağlantımızı gerçekleştiriyoruz. `ssh -i PRIVATE_KEY_DOSYA_YOLU kullanici_adi@SUNUCU_IP` yazmaya çalışırsanız, bağlantınız başarısız olacaktır, çünkü herhangi bir port belirtirilmediğinde varsayılan olan 22. porttan bağlantıyı gerçekleştirmeye çalışacaktır.
+If you try to connect again with the usual `ssh -i PRIVATE_KEY_DOSYA_YOLU kullanici_adi@SUNUCU_IP`, it will fail because the default port is still 22. Instead, you need to specify the new port:
 
 ```
 ssh -p PORT_NUMARASI -i PRIVATE_KEY_DOSYA_YOLU kullanici_adi@SUNUCU_IP
 ```
-- `PORT_NUMARASI` kısmına belirlediğimiz port numarasını yazıyoruz (49777).
+- Replace **PORT_NUMARASI** with the port number you chose (49777).
 
-İstediğiniz portu yazmakta özgürsünüz, fakat varsayılan portları yazmak çakışmalara ve gelen isteği dinleyememe gibi sorunlara yol açacağından dolayı **49152 – 65535** arasınıdaki portları kullanmanızı öneririm. Bu port aralığı **Dinamik ve Özel Portlar** olarak adlandırılır ve günlük hayatta kullandığınız hizmetlerin hiçbiri bu aralığı kullanmama ihitmalinden dolayı bu aralığı seçmeniz en iyi seçenektir. Portlarla ilgili daha fazla bilgi için lütfen araştırınız.
+You are free to choose any port number, but using default ports can cause conflicts and issues. We recommend the **49152 – 65535** range, known as **Dynamic and Private Ports**, which are typically not used by everyday services. For more information on ports, please do further research.
