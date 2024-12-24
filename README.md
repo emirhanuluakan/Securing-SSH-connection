@@ -4,7 +4,7 @@ For Turkish version, please visit `main.tr` branch.
 
 After setting up your server and obtaining its IP address, username (most likely **root**), and password, you can establish an SSH connection by typing:
 ```
-ssh root@SUNUCU_IP
+ssh root@SERVER_IP
 ```
 If you are unable to log in with **root** privileges, it might be because the server service you installed disables SSH access with **root** privileges (which is actually something we want).
 
@@ -18,13 +18,13 @@ __IF YOU CAN LOG IN WITH _root_ PRIVILEGES, YOU NEED TO COMPLETE THIS SECTION!__
 After logging in to the server with root, we create a new user by entering the following commands. This user gains administrator privileges by using the **sudo** command.
 
 ```
-adduser kullanici_adi
+adduser username
 ```
 - The `adduser` command creates a user.
 ```
-usermod -aG sudo kullanici_adi
+usermod -aG sudo username
 ```
-- Adds the user named **kullanici_adi** to the **sudo** group. Users in the **sudo** group have administrator privileges.
+- Adds the user named **username** to the **sudo** group. Users in the **sudo** group have administrator privileges.
 
 After entering these commands, you will be prompted to create a password for the user. Enter your desired password.
 
@@ -32,7 +32,7 @@ After entering these commands, you will be prompted to create a password for the
 
 To switch to the newly created user, type:
 ```
-su kullanici_adi
+su username
 ```
 
 ## Generating an SSH Key Pair
@@ -54,7 +54,7 @@ After entering the command, it will ask for a name for the key. Here, we use **s
 Next, it will ask for a passphrase, which is an additional password for the key pair. You don’t have to set one, but since our goal is security, we will add one here.
 
 To verify whether the key pair was generated, you can type `ls -l` while in the `.ssh` directory to list the files in detail. For more options on listing files, please research the `ls` command.
-- The `.ssh` folder can be found in `C:\Users\kullanici_adi\` on Windows.
+- The `.ssh` folder can be found in `C:\Users\username\` on Windows.
 
 Two files will be created: one with a **.pub** extension and another without an extension. The file named **sshkey.pub** is your **Public Key** and can be shared with no issues. It is the one you upload to the remote system (in our case, the server).
 
@@ -62,12 +62,12 @@ The other file named **sshkey** is your **Private Key** and must never be shared
 
 To copy the newly created key to the server, we will use the `scp` command (remember, we’re still on our local machine):
 ```
-scp sshkey.pub kullanici_adi@SUNUCU_IP:
+scp sshkey.pub username@SERVER_IP:
 ```
 - `scp` stands for **Secure Copy Protocol**, used for securely copying files.
 - `sshkey.pub` is the public key from the SSH key pair you generated.
-- In `kullanici_adi@SUNUCU_IP`, specify the username you created and the server’s IPv4 address.
-- The trailing `:` indicates the directory on the server where the file will be copied. If nothing else is specified, the file will go to `/home/kullanici_adi`. By adding `:`, it places it in the user’s home directory (`~`).
+- In `username@SERVER_IP`, specify the username you created and the server’s IPv4 address.
+- The trailing `:` indicates the directory on the server where the file will be copied. If nothing else is specified, the file will go to `/home/username`. By adding `:`, it places it in the user’s home directory (`~`).
 
 When it asks for a password, enter your server’s password, and the file will be copied over.
 
@@ -163,19 +163,19 @@ When asked for a password, enter the password for your user.
 ```
 exit
 ```
-Because we switched from root to **kullanici_adi** via `su kullanici_adi`, entering `exit` here returns us to root.
+Because we switched from root to **username** via `su username`, entering `exit` here returns us to root.
 ```
 exit
 ```
 Entering `exit` once more logs us out from the root session.
 
 ## Establishing the SSH Connection
-We used to connect by typing `ssh kullanici_adi@SUNUCU_IP`, but now we need to use the command below:
+We used to connect by typing `ssh username@SERVER_IP`, but now we need to use the command below:
 ```
-ssh -i PRIVATE_KEY_DOSYA_YOLU kullanici_adi@SUNUCU_IP
+ssh -i PRIVATE_KEY_FILE_PATH username@SERVER_IP
 ```
-- In **PRIVATE_KEY_DOSYA_YOLU**, enter the path to your private key.
-    - On Windows, right-click on the private key file and select “Properties” to copy the file path, such as `C:\Users\kullanici_adi\.ssh`. Then add `\sshkey` to specify the actual key file. For example: `C:\Users\kullanici_adi\.ssh\sshkey`.
+- In **PRIVATE_KEY_FILE_PATH**, enter the path to your private key.
+    - On Windows, right-click on the private key file and select “Properties” to copy the file path, such as `C:\Users\username\.ssh`. Then add `\sshkey` to specify the actual key file. For example: `C:\Users\username\.ssh\sshkey`.
 
 If you set a passphrase, you’ll be prompted for it. Type it in and press **Enter** to complete the SSH connection successfully.
 
@@ -225,11 +225,11 @@ sudo ufw reload
 ```
 - `reload` restarts the firewall.
 
-If you try to connect again with the usual `ssh -i PRIVATE_KEY_DOSYA_YOLU kullanici_adi@SUNUCU_IP`, it will fail because the default port is still 22. Instead, you need to specify the new port:
+If you try to connect again with the usual `ssh -i PRIVATE_KEY_FILE_PATH username@SERVER_IP`, it will fail because the default port is still 22. Instead, you need to specify the new port:
 
 ```
-ssh -p PORT_NUMARASI -i PRIVATE_KEY_DOSYA_YOLU kullanici_adi@SUNUCU_IP
+ssh -p PORT_NUMBER -i PRIVATE_KEY_FILE_PATH username@SERVER_IP
 ```
-- Replace **PORT_NUMARASI** with the port number you chose (49777).
+- Replace **PORT_NUMBER** with the port number you chose (49777).
 
 You are free to choose any port number, but using default ports can cause conflicts and issues. We recommend the **49152 – 65535** range, known as **Dynamic and Private Ports**, which are typically not used by everyday services. For more information on ports, please do further research.
