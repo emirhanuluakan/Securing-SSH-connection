@@ -1,4 +1,4 @@
-for Turkish version, please visit `main.tr` branch.
+For Turkish version, please visit `main.tr` branch.
 
 # Securing the SSH Connection
 
