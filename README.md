@@ -64,7 +64,8 @@ scp sshkey.pub kullanici_adi@SUNUCU_IP:
 - `scp` **Secure Copy Protocol** anlamına gelir. Bu komutla dosyaları kopyalayabilriz.
 - `sshkey.pub` kısmına oluşturduğunuz SSH anahtar çiftinin açık anahtarını (.pub) giriyoruz.
 - `kullanici_adi@SUNUCU_IP` kısmında ise oluşturduğumuz kullanıcı adı ve bağlanacağımız sunucunun IPv4'ünü yazıyorsunuz.
-- sondaki `:` karakteri ise kopyalanılacak dosyanın, sunucuda hangi dizine kopyalanacağını belirtir. Eğer bir şey yazmasaydık `/home/kullanici_adi` dizininde aktaracaktı. Fakat `:` karakteri ise kullanıcının ana dizinine kopyalamasını sağayacak (`~`).
+- sondaki `:` karakteri ise kopyalanılacak dosyanın, sunucuda hangi dizine kopyalanacağını belirtir. Bir şey yazmadığımız için varsayılan olarak sunucuda belirtilen kullanıcının ev dizinine kopyalayacak.
+- Eğer `sshkey.pub` ile aynı dizinde olmanıza rağmen aktarım gerçekleştiremiyorsanız `sshkey.pub` yerine diziniyle birlikte yazın (Örneğin: `C:\Users\WINDOWS_KULLANICI_ADI\.ssh\sshkey.pub`).
 
 Şifre sorduğu zaman sunucunun şifresini girin ve kopyalama gerçekleşecek.
 
@@ -77,13 +78,13 @@ Ana dizine gitmemiz gerekiyor
 ```
 cd ~
 ```
-- `cd` ana dizine gidersiniz
+- `~` dizini yani seçili olan kullanıcının ev dizinine gidersiniz.
 
 Ana dizindeki dosyaları listeler
 ```
 ls
 ```
-- `ls` olduğunuz dizindeki dosyaları listeler
+- `ls` olduğunuz dizindeki dosyaları listeler.
 
 Listelenen dosyalarda `sshkey.pub` görüyorsanız doğru yoldasınız. SCP başarıyla gerçekleşmiş. Şimdi bu **Public Key**'i işletim sisteminin SSH ayarlarının yapıldığı dosyada yazan dizine aktarmamız gerek. Bu dizin çoğu Linux dağıtımalarında aynıdır (`.ssh/authorized_keys`).
 Olduğunuz dizinin `~` olduğuna emin olun. Bunları ana dizinde gerçekleştiriyoruz. Aşağıdaki komut, `~` dizininde `.ssh` dizinini (klasörünü) oluşturur.
@@ -102,10 +103,7 @@ cat sshkey.pub >> .ssh/authorized_keys
 ```
 - `cat` komutu belirli dosyaların içeriğini belirli dosyalara yazılmasını sağlar.
 - `>>` operatörü solundaki dosyanın içeriğini sağındaki dosyaya _ekler_. Eğer `>` kullansaydık mevcut içerik silinip yerine yazılırdı.
-Eğer burada iki tane **Public Key** tanımlamak isteseydik, **Public Key**'leri konumlarıyla birlikte sırasıyla yazmamız gerekirdi. Aşağıya örneğini ekliyorum. Bu örnek, `>>` kullanıldığından bir içeriği başka bir içeriğin yerine yazmaz, ekleme yapar.
-```
-cat ~/sshkey1.pub ~/sshkey2.pub >> .ssh/authorized_keys
-```
+- Eğer burada iki tane **Public Key** tanımlamak isteseydik, **Public Key**'leri konumlarıyla birlikte sırasıyla yazmamız gerekirdi. Paranteze örneğini ekliyorum. Bu örnek, `>>` kullanıldığından bir içeriği başka bir içeriğin yerine yazmaz, ekleme yapar (Ör: `cat ~/sshkey1.pub ~/sshkey2.pub >> .ssh/authorized_keys`)
 - Ana dizinde olduğumuz için `~/` eklememiz gerekmiyor, örnek olduğundan dolayı değinmek istedim.
 
 Artık `sshkey.pub` dosyasına gerek kalmadı çünkü içeriğini `authorized_keys` dosyasına _aktardık_. Silmek için: 
@@ -152,7 +150,8 @@ Yukarıdaki gibi düzenledikten sonra **CTRL+X** tuşlarına basarak çıkıyoru
 
 SSH hizmetini yeniden başlatmamız gerekiyor.
 ```
-sudo systemctl restart sshd
+sudo systemctl daemon-reload
+sudo systemctl restart ssh.socket
 ```
 - SSH hizmetini yeniden başlatır. buradaki `systemctl` ise servis ve sistem bileşenlerini yönetir.
 
