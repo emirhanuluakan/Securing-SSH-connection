@@ -155,7 +155,7 @@ After making these changes, press **CTRL+X** to exit. When prompted “Save modi
 
 We need to restart the SSH service:
 ```
-sudo systemctl restart sshd
+sudo systemctl restart ssh
 ```
 - This restarts the SSH service. `systemctl` manages services and system components.
 
@@ -200,8 +200,12 @@ Next, we need to configure the firewall. Since we set SSH to use **49777**, we m
 sudo ufw status
 ```
 - This shows the ports currently allowed.
+- If it returns "Status:inactive" message, we must activate the firewall first
+```
+sudo ufw enable
+```
 
-You’ll see **Port 22** allowed by default. We now allow the new port (49777):
+You may see **Port 22** allowed by default. If you only get "Status:active" message, it means no firewall rules created by default. We now allow the new port (49777):
 ```
 sudo ufw allow 49777/tcp
 ```
@@ -215,15 +219,17 @@ Restart the SSH configuration:
 sudo systemctl restart sshd
 ```
 
-Now, remove the rule allowing **Port 22** and then reload the firewall:
+Now, remove the rule allowing **Port 22** and then reload the firewall, if exists:
 ```
 sudo ufw delete allow 22/tcp
 ```
 - `delete allow` removes a rule from the firewall’s list.
 ```
 sudo ufw reload
+sudo reboot
 ```
 - `reload` restarts the firewall.
+- `reboot` ensures each changes on configurations (TODO: "reload"is not enough to activate new configurations. Find correct services to be restarted without reboot)
 
 If you try to connect again with the usual `ssh -i PRIVATE_KEY_FILE_PATH username@SERVER_IP`, it will fail because the default port is still 22. Instead, you need to specify the new port:
 
